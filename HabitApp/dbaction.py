@@ -3,8 +3,7 @@ import sqlite3
 import cursor
 from sqlite3 import Cursor
 from datetime import date
-
-
+ 
 connection = sqlite3.connect('HabitdataApp.db')
 cursor = connection.cursor()
 #cursor.execute("DROP TABLE HabitdataApp.dailyHabits CASCADE")

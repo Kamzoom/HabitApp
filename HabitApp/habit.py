@@ -26,7 +26,7 @@ class DailyHabit:
         result = cursor.fetchall()
         print(result)
         toStop = input()
-        cursor.execute('UPDATE dailyHabits SET status = ? WHERE name = ?',("passive",toStop))
+        cursor.execute('UPDATE dailyHabits SET status = ? WHERE name = ?', ("passive", toStop))
         cursor.close()
         connection.commit()
         connection.close()
