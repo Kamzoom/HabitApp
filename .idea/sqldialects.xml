@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/HabitApp/Input.py" dialect="SQL92" />
+    <file url="file://$PROJECT_DIR$/HabitAppRewiev/Input.py" dialect="SQL92" />
     <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/aa717223-c594-48ae-8eea-1a6a7fc540e6/console.sql" dialect="SQLite" />
     <file url="PROJECT" dialect="SQL92" />
   </component>
