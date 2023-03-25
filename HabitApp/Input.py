@@ -199,7 +199,7 @@ class DailyHabit:
             cursor.execute("DELETE FROM weeklyHabit WHERE name=?", ('toErase',))
         connection.commit()
         connection.close()
- 
+  
 
 # class weekly habit, not repeated every day. it inherits from daily habit and has an argument more like frequency. Frequency counts
 # the days in the week on witch the habit is
