@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime, date
 # Input habit is the interaction with the user to out in the habits and initialise the database
+
 def inputHabit():
     end = False
     while not end:
