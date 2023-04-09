@@ -4,68 +4,67 @@ from DailyHabit import *
 from HabitAppReview import statistic
 from statistic import *
 
-
-# Input habit is the interaction with the user to out in the habits and initialise the database
-"""the funktion inputHabit takes the input from user and saves it in the database """
+"""Input habit is the interaction with the user to out in the habits and initialise the database"""
+"""the function inputHabit takes the input from user and saves it in the database """
 
 
 def inputHabit():
     end = False
-    # while the user stops the input
+    """while the user stops the input"""
     while not end:
-        # name of habit input
+        """name of habit input"""
         print("Enter the name of the habit")
         name = input()
-        # during of habit input
+        """during of habit input"""
         print("Enter the durance of the habit in minutes")
         durance = str(input())
-        # startday, will change when the streak is done and will be the new start to caculate a streak
+        """startday, will change when the streak is done and will be the new start to caculate a streak"""
         startDay = str(datetime.now())
-        # streakDay will be updated, when the first streak is done
+        """streakDay will be updated, when the first streak is done"""
         streakDay = str(datetime.now())
-        # status can change into passive, when the user stops the habit
+        """status can change into passive, when the user stops the habit"""
         status = "active"
         print("For how long do you want to do this? Please give the number of weeks")
         weeks = str(input())
-        #convert string to integer
+        """convert string to integer"""
         weeksINT = int(weeks)
-        # periodD of daily habit is weeks*7(days of the week), period in days
+        """periodD of daily habit is weeks*7(days of the week), period in days"""
         periodD = weeksINT * 7
         print("Is this a daily or a weekly habit?")
         choose = input()
-        # dayFixed is the startday not used to calculate the streak, it doesn't change
+        """dayFixed is the startday not used to calculate the streak, it doesn't change"""
         dayFixed = str(datetime.now())
-        #sumAct ist the sum of active days, the value is stored in the database
+        """sumAct ist the sum of active days, the value is stored in the database"""
         sumAct = periodD
-        # missed days sum
+        """missed days sum"""
         sumMiss = 0
-        # sum streaks
+        """sum streaks"""
         sumStreak = 0
         if choose == "daily":
-            # connect database
+            """connect database"""
             connection = sqlite3.connect('HabitdataApp.db')
             cursor = connection.cursor()
-            # create an instance of class habit
+            """create an instance of class habit"""
             DailyHabit.habit = DailyHabit(name, durance, startDay, status, periodD, streakDay, dayFixed, sumAct,
                                           sumMiss, sumStreak)
-            # write the input in to database dailyHabits
+            """write the input in to database dailyHabits"""
             cursor.execute("""INSERT INTO dailyHabits  VALUES (?,?,?,?,?,?,?,?,?,?)""",
                            (name, durance, startDay, status, periodD, streakDay, dayFixed, sumAct, sumMiss, sumStreak))
             cursor.close()
             connection.commit()
             connection.close()
         elif choose == "weekly":
-            # frequency of habit :  when the habit is daily,the frequency is 7(=every day),if it's weekly it's like te user input
+            """frequency of habit :  when the habit is daily,the frequency is 7(=every day),if it's weekly it's like te user input"""
             print("How many times in the week is the habit?")
             frequency = int(input())
-            # active days in weekly habit muliplied with the number of weeks
+            """active days in weekly habit muliplied with the number of weeks"""
             periodW = int(frequency) * weeks
-            # create an instance of class weeklyHabit
+            """creates an instance of class weeklyHabit"""
             WeeklyHabit.habit = WeeklyHabit(name, durance, startDay, status, periodW, streakDay, dayFixed, sumAct,
                                             sumMiss, sumStreak, periodW)
             connection = sqlite3.connect('HabitdataApp.db')
             cursor = connection.cursor()
-            # write the input into database
+            """write the input into database"""
             cursor.execute("""INSERT INTO weeklyHabits VALUES (?, ?, ?,?, ?,?,?,?,?,?,?)""", (
                 name, durance, startDay, status, periodW, streakDay, dayFixed, sumAct, sumMiss, sumStreak,
                 frequency))
@@ -79,7 +78,7 @@ def inputHabit():
             connection.commit()
             connection.close()
         print("If you are ready enter Y, if not enter N")
-        # if the user input is done, the program stops by entering y, by entering n it is going on
+        """if the user input is done, the program stops by entering y, by entering n it is going on"""
         answer = input()
         if answer == "Y":
             end = True
@@ -87,8 +86,8 @@ def inputHabit():
             end = False
 
 
-inputHabit()
-# DailyHabit.streak() prüfrn datenbank füllen
+# inputHabit()
+DailyHabit.streak()
 # DailyHabit.eraseHabit()
 # DailyHabit.missedDays()
 # DailyHabit.activeDays()

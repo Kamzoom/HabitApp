@@ -56,7 +56,7 @@ class DailyHabit:
             cursor.close()
         connection.close()
 
-    # when the user don't interrupt the habit, he has a streak after 14 days
+    """when the user don't interrupt the habit, he has a streak after 14 days"""
     @staticmethod
     def streak():
         """After 14 days without interrupting an habit, there is a streak, the data will be synchronized wih the database"""
@@ -71,7 +71,7 @@ class DailyHabit:
         print(result1)
         cursor.close()
         connection.commit()
-        # first find the habit about which the user wants to know a streak
+        """first find the habit about which the user wants to know a streak"""
         print("For which habit do you want to know the streak?")
         toCheck = input()
         print('Is this a weekly or a daily habit?')
@@ -81,19 +81,19 @@ class DailyHabit:
             cursor = connection.cursor()
             cursor.execute('SELECT startDay FROM dailyHabits WHERE Name=?', (toCheck,))
             start = cursor.fetchone()
-            # read the startday from the database and convert it to a datatimeformat
+            """read the startday from the database and convert it to a datatimeformat"""
             beg = start[0]
             obj = datetime.strptime(beg, '%Y-%m-%d %H:%M:%S.%f')
-            #store the actally date
+            """store the actually date"""
             today = datetime.now()
             cursor.close()
             connection.commit()
             connection.close()
-            #calculate the difference between the start of habit an the actually date
+            """calculate the difference between the start of habit an the actually date"""
             diff = today - obj
-            #convert the date to integer
+            """convert the date to integer"""
             days = diff.days
-            #if the difference is bigger than 14 days: there is a streak(or more streaks),if it is 14: there is one straek, if it's smaller than 14: there is no streak
+            """if the difference is bigger than 14 days: there is a streak(or more streaks),if it is 14: there is one straek, if it's smaller than 14: there is no streak"""
             if days < 14:
                 rest = 14 - days
                 print("REST ", rest)
@@ -105,48 +105,49 @@ class DailyHabit:
                 cursor = connection.cursor()
                 cursor.execute('SELECT sumStreak FROM dailyHabits WHERE Name=?', (toCheck,))
                 add = cursor.fetchone()
-                #increment sum of streaks
+                """increment sum of streaks"""
                 add1 = add[0]
                 add1 += 1
-                #write to database, update the startday of a streak, the begin for a new streak is today
+                """write to database, update the startday of a streak, the begin for a new streak is today"""
                 cursor.execute('UPDATE dailyHabits SET startDay = ?, sumStreak=? WHERE name = ?',
                                (newStart, add1, toCheck))
                 cursor.close()
                 connection.commit()
-            #if the difference is bigger than 14, calculate how many streaks are done
+                """if the difference is bigger than 14, calculate how many streaks are done"""
             elif days > 14:
                 diff = today - obj
-                # days between begin of the streak and today
+                """days between begin of the streak and today"""
                 days = diff.days
-                # How many streaks are done, calculate all days with modulo
+                """How many streaks are done, calculate all days with modulo"""
                 streaksM = days % 14
                 print("Your streak was ", days, " days ago, you head ", streaksM, " streaks")
-                #calculate the startday for a new streak
+                """calculate the startday for a new streak"""
                 newStreakTime = streaksM * 14
-                # new startday for a Streak
+                """new startday for a Streak"""
                 newDate = obj + timedelta(days=newStreakTime)
                 connection = sqlite3.connect('HabitdataApp.db')
                 cursor = connection.cursor()
                 cursor.execute('SELECT sumStreak FROM dailyHabits WHERE Name=?', (toCheck,))
-                #calculate the streak sum
+                """calculate the streak sum"""
                 add = cursor.fetchone()
                 add1 = add[0]
                 add1 += streaksM
-                #update the streak sum and the begin of a new streak
+                """update the streak sum and the begin of a new streak"""
                 cursor.execute('UPDATE dailyHabits SET startDay = ?, sumStreak=? WHERE Name = ?',
                                (newDate, add1, toCheck))
                 cursor.close()
                 connection.commit()
 
         if result == "weekly":
+            connection = sqlite3.connect('HabitdataApp.db')
             cursor = connection.cursor()
-            #read the startday of a streak in the database
+            """read the startday of a streak in the database"""
             cursor.execute('SELECT startDay FROM weeklyHabits WHERE Name=?', (toCheck,))
             start = cursor.fetchone()
-            #convert the string to datatime
+            """convert the string to datatime"""
             beg = start[0]
             obj = datetime.strptime(beg, '%Y-%m-%d %H:%M:%S.%f')
-            #store the actually date
+            """store the actually date"""
             today = datetime.now()
             cursor.close()
             connection.commit()
@@ -162,10 +163,10 @@ class DailyHabit:
             dif = 7 - days
             # are the days more than 14
             res = (dif + days) * 2
-            #if days smaller than 14, no streak
+            """if days smaller than 14, no streak"""
             if days < res:
                 print("Keep going!")
-            #if days equal to 14: one streak
+            """if days equal to 14: one streak"""
             elif days == res:
                 print("Hurrah!!!Your Streak today!!!")
                 newStart = datetime.today()
@@ -178,7 +179,7 @@ class DailyHabit:
                                (newStart, add, toCheck))
                 cursor.close()
                 connection.commit()
-            #if days more than 14, calculate the streaks
+        """if days more than 14, calculate the streaks"""
             elif days > res:
                 diff = today - obj
                 # days between begin of the streak and today

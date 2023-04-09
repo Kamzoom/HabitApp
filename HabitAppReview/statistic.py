@@ -9,14 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-
-# active days, missed day
-# Streaks
-# active, passiv
 def activedays():
+    """retruns and shows the sum of active days"""
     connection = sqlite3.connect('HabitdataApp.db')
     cursor = connection.cursor()
-    # cursor.execute('SELECT sumAct FROM dailyHabits ')
     cursor.execute('select sumAct from weeklyHabits')
     result = cursor.fetchall()
     y = []
@@ -43,6 +39,7 @@ def activedays():
 
 
 def misseddays():
+    """retruns and shows all missed days"""
     connection = sqlite3.connect('HabitdataApp.db')
     cursor = connection.cursor()
     cursor.execute('SELECT sumMiss FROM dailyHabits ')
@@ -70,6 +67,7 @@ def misseddays():
 
 
 def streakdays():
+    """caculates streaksdays and shows them"""
     connection = sqlite3.connect('HabitdataApp.db')
     cursor = connection.cursor()
     cursor.execute('SELECT sumStreak FROM dailyHabits')
@@ -98,6 +96,7 @@ def streakdays():
 
 
 def showallDailyinCSV():
+    """creates a table of daily habits in a CSV-file"""
     connection = sqlite3.connect('HabitdataApp.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM dailyHabits')
@@ -111,6 +110,7 @@ def showallDailyinCSV():
 
 
 def showallWeeklyinCSV():
+    """creates a table in a csv-file of weekly habits"""
     connection = sqlite3.connect('HabitdataApp.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM weeklyHabits')
