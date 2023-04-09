@@ -10,9 +10,9 @@ from dateutil import parser
 
 
 class DailyHabit:
-    """The class DailyHabit contains the name(p.ex.jogging), the durance(is the daily time of an habit), the startday(the day on witch the habit starts, this day will be
-    changed, if an habit makes a streak, the status(active or passive), the period(for how long will be the habit(a month or a year), the streakDay(the day wenn the first time the habit is not interrupted for 14 days)
-    and startdayFixed of an habit."""
+    """The class dailyHabit contains attributes like the name(p.ex.jogging), the durance(is the daily time of an habit), the startday(the day on witch the habit starts, this day will be
+    changed, if an habit makes a streak, the status(active or passive), the period(for how long will be the habit(a month or a year), the count of streakDays(the day wenn the first time the habit is not interrupted for 14 days)
+    and startdayFixed of an habit, also the sum of active days, of missed days and the sum of streaks"""
 
     def __init__(self, name, durance, startDay, status, period, streakDay, startDayFixed, sumAct, sumMiss, sumStreak):
         self.name = name
@@ -81,20 +81,19 @@ class DailyHabit:
             cursor = connection.cursor()
             cursor.execute('SELECT startDay FROM dailyHabits WHERE Name=?', (toCheck,))
             start = cursor.fetchone()
+            # read the startday from the database and convert it to a datatimeformat
             beg = start[0]
             obj = datetime.strptime(beg, '%Y-%m-%d %H:%M:%S.%f')
-            print(type(obj))
+            #store the actally date
             today = datetime.now()
-            print(type(today))
             cursor.close()
             connection.commit()
             connection.close()
+            #calculate the difference between the start of habit an the actually date
             diff = today - obj
-            print(type(diff))
-            print("DIFF", diff)
-            print(diff.days)
+            #convert the date to integer
             days = diff.days
-            print(type(days))
+            #if the difference is bigger than 14 days: there is a streak(or more streaks),if it is 14: there is one straek, if it's smaller than 14: there is no streak
             if days < 14:
                 rest = 14 - days
                 print("REST ", rest)
@@ -106,34 +105,34 @@ class DailyHabit:
                 cursor = connection.cursor()
                 cursor.execute('SELECT sumStreak FROM dailyHabits WHERE Name=?', (toCheck,))
                 add = cursor.fetchone()
-
+                #increment sum of streaks
                 add1 = add[0]
-                print(type(add1))
                 add1 += 1
+                #write to database, update the startday of a streak, the begin for a new streak is today
                 cursor.execute('UPDATE dailyHabits SET startDay = ?, sumStreak=? WHERE name = ?',
                                (newStart, add1, toCheck))
                 cursor.close()
                 connection.commit()
-                cursor.execute('SELECT sumStreak FROM dailyHabits WHERE Name=?', (toCheck,))
-                re = cursor.fetchall()
-                print("Neue SUmme ", re)
+            #if the difference is bigger than 14, calculate how many streaks are done
             elif days > 14:
                 diff = today - obj
                 # days between begin of the streak and today
                 days = diff.days
-                # How many straks did you have
+                # How many streaks are done, calculate all days with modulo
                 streaksM = days % 14
                 print("Your streak was ", days, " days ago, you head ", streaksM, " streaks")
+                #calculate the startday for a new streak
                 newStreakTime = streaksM * 14
                 # new startday for a Streak
                 newDate = obj + timedelta(days=newStreakTime)
-                print("Neuesdatum ", newDate)
                 connection = sqlite3.connect('HabitdataApp.db')
                 cursor = connection.cursor()
                 cursor.execute('SELECT sumStreak FROM dailyHabits WHERE Name=?', (toCheck,))
+                #calculate the streak sum
                 add = cursor.fetchone()
                 add1 = add[0]
                 add1 += streaksM
+                #update the streak sum and the begin of a new streak
                 cursor.execute('UPDATE dailyHabits SET startDay = ?, sumStreak=? WHERE Name = ?',
                                (newDate, add1, toCheck))
                 cursor.close()
@@ -141,13 +140,14 @@ class DailyHabit:
 
         if result == "weekly":
             cursor = connection.cursor()
+            #read the startday of a streak in the database
             cursor.execute('SELECT startDay FROM weeklyHabits WHERE Name=?', (toCheck,))
             start = cursor.fetchone()
+            #convert the string to datatime
             beg = start[0]
             obj = datetime.strptime(beg, '%Y-%m-%d %H:%M:%S.%f')
-            print(type(obj))
+            #store the actually date
             today = datetime.now()
-            print(type(today))
             cursor.close()
             connection.commit()
             connection.close()
@@ -156,15 +156,16 @@ class DailyHabit:
             cursor = connection.cursor()
             cursor.execute('SELECT frequence FROM weeklyHabits WHERE Name=?', (toCheck,))
             freq = cursor.fetchone()
-            print("IST WAS DRIN?", freq)
             # days of the week with habit
             days = freq[0]
             # days of the week without habit
             dif = 7 - days
             # are the days more than 14
             res = (dif + days) * 2
+            #if days smaller than 14, no streak
             if days < res:
                 print("Keep going!")
+            #if days equal to 14: one streak
             elif days == res:
                 print("Hurrah!!!Your Streak today!!!")
                 newStart = datetime.today()
@@ -177,6 +178,7 @@ class DailyHabit:
                                (newStart, add, toCheck))
                 cursor.close()
                 connection.commit()
+            #if days more than 14, calculate the streaks
             elif days > res:
                 diff = today - obj
                 # days between begin of the streak and today
@@ -187,11 +189,11 @@ class DailyHabit:
                 newStreakTime = streaksM * 14
                 # new startday for a Streak
                 newDate = obj + timedelta(days=newStreakTime)
-                print("Neuesdatum ", newDate)
                 connection = sqlite3.connect('HabitdataApp.db')
                 cursor = connection.cursor()
                 cursor.execute('SELECT sumStreak FROM weeklyHabits WHERE Name=?', (toCheck,))
                 add = cursor.fetchone()
+                #update the number of streaks
                 add1 = add[0]
                 add1 += streaksM
                 cursor.execute('UPDATE weeklyHabits SET startDay = ?, sumStreak=? WHERE Name = ?',
@@ -202,7 +204,7 @@ class DailyHabit:
 
     @staticmethod
     def activeDays():
-        """this method calculates how many active days an  user had for an habit"""
+        """this method calculates how many active days an user had for an habit"""
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
         print("For which habit do you want to know the missed days?")
@@ -210,33 +212,18 @@ class DailyHabit:
         cursor = connection.cursor()
         cursor.execute('SELECT Name, sumAct FROM dailyHabits')
         result = cursor.fetchall()
+        print("Your daily habits")
         print(result)
-        connection = sqlite3.connect('HabitdataApp.db')
-        cursor = connection.cursor()
-        cursor.execute('SELECT Name, sumAct FROM weeklyHabits')
-        result1 = cursor.fetchall()
-        print(result1)
         toCheck = input()
-        print(type(toCheck))
-        print("Is this a daily or a weekly habit?")
-        result2 = input()
-        if result2 == "daily":
-            cursor.execute('SELECT sumAct FROM dailyHabits WHERE name=?', (toCheck,))
-            resultA = cursor.fetchone()
-            print(resultA)
-            cursor.execute('SELECT sunMiss FROM dailyHabits WHERE name=?', (toCheck,))
-            resultM = cursor.fetchone()
-            activeDays = resultA[0] - resultM[0]
-            print("Your active  days ", activeDays)
-            connection.close()
-        elif result2 == "weekly":
-            cursor.execute('SELECT sumAct FROM weeklyHabits WHERE name=?', (toCheck,))
-            resultA = cursor.fetchall()
-            cursor.execute('SELECT sunMiss FROM weeklyHabits WHERE name=?', (toCheck,))
-            resultM = cursor.fetchall()
-            activeDays = resultA - resultM
-            print("Your active  days ", activeDays)
-            connection.close()
+        cursor.execute('SELECT sumAct FROM dailyHabits WHERE name=?', (toCheck,))
+        resultA = cursor.fetchone()
+        print(resultA)
+        cursor.execute('SELECT sunMiss FROM dailyHabits WHERE name=?', (toCheck,))
+        resultM = cursor.fetchone()
+        # calculate the difference between active and passive days for a daily habit
+        activeDays = resultA[0] - resultM[0]
+        print("Your active  days ", activeDays)
+        connection.close()
 
     @staticmethod
     def missedDays():
@@ -255,7 +242,7 @@ class DailyHabit:
 
     @staticmethod
     def notToday():
-        """this method reduce the active days and changes the startday for a streak"""
+        """if the user missed an habit, this method reduce the active days and changes the startday for a streak"""
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
         print("Which habit you missed today, this is the list of your daily habits")
@@ -273,14 +260,17 @@ class DailyHabit:
             cursor = connection.cursor()
             cursor.execute('SELECT sumMiss FROM dailyHabits WHERE name =?', (toCheck,))
             result = cursor.fetchone()
+            #convert the string to integer
             sM = result[0]
             sM += 1
+            #update a startday for a streak
             newStart = date.today()
             cursor.execute('UPDATE dailyHabits SET startDay = ?, sumMiss=? WHERE name = ?', (newStart, sM, toCheck,))
             cursor.close()
             connection.commit()
             cursor = connection.cursor()
             cursor.execute('SELECT sumAct FROM dailyHabits WHERE name=?', (toCheck,))
+            #reduce the count of active days and update the database
             sumAS = cursor.fetchone()
             sumAI1 = sumAS[0]
             sumAI1 -= 1
@@ -321,10 +311,11 @@ class DailyHabit:
         print("Your weekly habits")
         print(result1)
         print("Witch habit you want to erase, this is the list of your habits")
+        #store the name of habit, that shoud be erased
         toErase = input()
         print("Is this a daily or a weekly habit?")
         toChoose = input()
-        print(type(toChoose))
+        #erase the habit
         if toChoose == "daily":
             cursor.execute("DELETE FROM dailyHabits WHERE name=?", (toErase,))
             connection.commit()
@@ -350,9 +341,18 @@ class WeeklyHabit(DailyHabit):
         pass
 
     @staticmethod
-    def notToday(self):
-        pass
-
-    @staticmethod
     def activeDays(self):
-        pass
+        connection = sqlite3.connect('HabitdataApp.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT Name, sumAct FROM weeklyHabits')
+        result1 = cursor.fetchall()
+        print("Your weekly habits")
+        toCheck = input()
+        cursor.execute('SELECT sumAct FROM weeklyHabits WHERE name=?', (toCheck,))
+        resultA = cursor.fetchall()
+        cursor.execute('SELECT sunMiss FROM weeklyHabits WHERE name=?', (toCheck,))
+        resultM = cursor.fetchall()
+        # calculate the difference between active and passive days for a weekly habit
+        activeDays = resultA - resultM
+        print("Your active  days ", activeDays)
+        connection.close()

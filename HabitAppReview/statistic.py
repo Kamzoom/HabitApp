@@ -122,6 +122,8 @@ def showallWeeklyinCSV():
     connection.commit()
     connection.close()
 
+
 # misseddays()
-# showallWeeklyinCSV()
+showallWeeklyinCSV()
+showallDailyinCSV()
 # streakdays()
