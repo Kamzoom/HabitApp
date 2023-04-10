@@ -29,29 +29,28 @@ class DailyHabit:
     # Status of a habit
     @staticmethod
     def checkOut():
-        """Turns an active habit to a passive habit and don't track anymore"""
-        print("Witch habit do you want to CheckOut")
+        """Turns an active habit to a passive habit and stops tracking"""
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
         cursor.execute('SELECT name, status FROM dailyHabits')
-        result1 = cursor.fetchall()
-        print(result1)
+        daily_habits = cursor.fetchall()
+        print(daily_habits)
         cursor.execute('SELECT Name, status FROM weeklyHabits')
-        result2 = cursor.fetchall()
-        print(result2)
-        toCheck = input()
-        print(type(toCheck))
-        print("Is this a daily or a weekly habit?")
-        result = input()
-        if result == "daily":
-            cursor.execute('UPDATE dailyHabits SET status = ? WHERE name = ?', ("passive", toCheck))
-            result = cursor.fetchall()
-            cursor.close()
+        weekly_habits = cursor.fetchall()
+        print(weekly_habits)
+        habit_name = input("\nWhich habit do you want to check out? ")
+        habit_type = None
+        if habit_name in [h[0] for h in daily_habits]:
+            habit_type = 'daily'
+        elif habit_name in [h[0] for h in weekly_habits]:
+            habit_type = 'weekly'
+        if habit_type:
+            cursor.execute(f"UPDATE {habit_type.capitalize()}Habits SET status=? WHERE name=?", ("passive", habit_name))
             connection.commit()
-        elif result == "weekly":
-            cursor.execute('UPDATE weeklyHabits SET status = ? WHERE name = ?', ("passive", toCheck))
-            result = cursor.fetchall()
-            cursor.close()
+            print(f"\nHabit '{habit_name}' successfully checked out.")
+        else:
+            print(f"\nHabit '{habit_name}' not found.")
+
             connection.commit()
             cursor.close()
         connection.close()
@@ -166,7 +165,7 @@ class DailyHabit:
             """if days smaller than 14, no streak"""
             if days < res:
                 print("Keep going!")
-            """if days equal to 14: one streak"""
+                """if days equal to 14: one streak"""
             elif days == res:
                 print("Hurrah!!!Your Streak today!!!")
                 newStart = datetime.today()
@@ -179,7 +178,7 @@ class DailyHabit:
                                (newStart, add, toCheck))
                 cursor.close()
                 connection.commit()
-        """if days more than 14, calculate the streaks"""
+                """if days more than 14, calculate the streaks"""
             elif days > res:
                 diff = today - obj
                 # days between begin of the streak and today
@@ -204,39 +203,33 @@ class DailyHabit:
             """if active days are not 14, the app makes an output"""
 
     @staticmethod
-    def activeDays():
+    def active_days():
         """this method calculates how many active days an user had for an habit"""
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
-        print("For which habit do you want to know the missed days?")
+        # Display the available habits to the user
+        print("Your daily habits:")
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
-        cursor.execute('SELECT Name, sumAct FROM dailyHabits')
-        result = cursor.fetchall()
-        print("Your daily habits")
-        print(result)
-        toCheck = input()
-        cursor.execute('SELECT sumAct FROM dailyHabits WHERE name=?', (toCheck,))
-        resultA = cursor.fetchone()
-        print(resultA)
-        cursor.execute('SELECT sunMiss FROM dailyHabits WHERE name=?', (toCheck,))
-        resultM = cursor.fetchone()
-        # calculate the difference between active and passive days for a daily habit
-        activeDays = resultA[0] - resultM[0]
-        print("Your active  days ", activeDays)
+        cursor.execute('SELECT Name, sumAct, sumMiss FROM dailyHabits')
+        habits = cursor.fetchall()
+        for habit in habits:
+            print(f"- {habit[0]} ({habit[1]} active days)")
+        # Prompt the user for the habit they want to check
         connection.close()
 
     @staticmethod
-    def missedDays():
-        """This method calculates how many days an habit was not done"""
+    def missed_days():
+        """This method calculates shows how many days an habit was not done"""
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
         print("For Which habit do you want to know the missed days?")
         cursor.execute('SELECT Name, streakDay FROM dailyHabits')
         result = cursor.fetchall()
-        print(result)
+        for habit in result:
+            print(f"- {habit[0]}")
         toCheck = input()
-        cursor.execute('SELECT sunMiss FROM statisticHabits WHERE name=?', (toCheck,))
+        cursor.execute('SELECT sumMiss FROM dailyHabits WHERE name=?', (toCheck,))
         result = cursor.fetchall()
         print("Your missed days ", result)
         connection.close()
@@ -300,33 +293,36 @@ class DailyHabit:
 
     @staticmethod
     def eraseHabit():
-        """this method erase an habit"""
+        """this method erase a habit from the database."""
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
+        # Display the available habits to the user
         cursor.execute('SELECT Name FROM dailyHabits')
-        result = cursor.fetchall()
-        print("Your daily habits")
-        print(result)
+        daily_habits = cursor.fetchall()
+        print("Your daily habits:")
+        for habit in daily_habits:
+            print(f"- {habit[0]}")
         cursor.execute('SELECT Name FROM weeklyHabits')
-        result1 = cursor.fetchall()
-        print("Your weekly habits")
-        print(result1)
-        print("Witch habit you want to erase, this is the list of your habits")
-        #store the name of habit, that shoud be erased
-        toErase = input()
-        print("Is this a daily or a weekly habit?")
-        toChoose = input()
-        #erase the habit
-        if toChoose == "daily":
-            cursor.execute("DELETE FROM dailyHabits WHERE name=?", (toErase,))
-            connection.commit()
-            connection.close()
+        weekly_habits = cursor.fetchall()
+        print("Your weekly habits:")
+        for habit in weekly_habits:
+            print(f"- {habit[0]}")
+        # store the name of habit, that shoud be erased
+        habit_name = input("\nWhich habit do you want to erase? ")
+        # Determine if the habit is daily or weekly
+        habit_type = None
+        if habit_name in [h[0] for h in daily_habits]:
+            habit_type = 'daily'
+        elif habit_name in [h[0] for h in weekly_habits]:
+            habit_type = 'weekly'
 
-        elif toChoose == "weekly":
-            cursor.execute("DELETE FROM weeklyHabits WHERE name=?", (toErase,))
+        # Erase the habit from the appropriate table
+        if habit_type:
+            cursor.execute(f"DELETE FROM {habit_type.capitalize()}Habits WHERE name=?", (habit_name,))
             connection.commit()
-            connection.close()
-
+            print(f"\nHabit '{habit_name}' successfully erased.")
+        else:
+            print(f"\nHabit '{habit_name}' not found.")
 
 # class weekly habit, not repeated every day. it inherits from daily habit and has an argument more like frequency. Frequency counts
 # the days in the week on witch the habit is
@@ -342,18 +338,11 @@ class WeeklyHabit(DailyHabit):
         pass
 
     @staticmethod
-    def activeDays(self):
+    def active_days():
         connection = sqlite3.connect('HabitdataApp.db')
         cursor = connection.cursor()
         cursor.execute('SELECT Name, sumAct FROM weeklyHabits')
-        result1 = cursor.fetchall()
-        print("Your weekly habits")
-        toCheck = input()
-        cursor.execute('SELECT sumAct FROM weeklyHabits WHERE name=?', (toCheck,))
-        resultA = cursor.fetchall()
-        cursor.execute('SELECT sunMiss FROM weeklyHabits WHERE name=?', (toCheck,))
-        resultM = cursor.fetchall()
-        # calculate the difference between active and passive days for a weekly habit
-        activeDays = resultA - resultM
-        print("Your active  days ", activeDays)
+        habits = cursor.fetchall()
+        for habit in habits:
+            print(f"- {habit[0]} ({habit[1]} active days)")
         connection.close()

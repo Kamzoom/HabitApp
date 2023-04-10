@@ -87,10 +87,10 @@ def inputHabit():
 
 
 # inputHabit()
-DailyHabit.streak()
+# DailyHabit.streak()
 # DailyHabit.eraseHabit()
-# DailyHabit.missedDays()
-# DailyHabit.activeDays()
-# DailyHabit.checkOut()
+# DailyHabit.missed_days()
+# WeeklyHabit.active_days()
+DailyHabit.checkOut()
 # DailyHabit.notToday()
 # statistic.showall()
