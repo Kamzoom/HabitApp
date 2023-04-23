@@ -1,7 +1,6 @@
 import sqlite3
 from datetime import datetime, date
 from typing import List, Any
-import matplotlib.pyplot as plt
 import numpy as np
 
 import matplotlib as plt
@@ -100,8 +99,8 @@ def showallDailyinCSV():
     connection = sqlite3.connect('HabitdataApp.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM dailyHabits')
-    result1 = cursor.fetchall()
-    print(result1)
+    daily_habits = cursor.fetchall()
+    print(daily_habits)
     df = pd.read_sql_query("SELECT * FROM dailyHabits", connection)
     df.to_csv('dailyHabits_new.csv')
     cursor.close()
@@ -114,16 +113,15 @@ def showallWeeklyinCSV():
     connection = sqlite3.connect('HabitdataApp.db')
     cursor = connection.cursor()
     cursor.execute('SELECT * FROM weeklyHabits')
-    result1 = cursor.fetchall()
-    print(result1)
+    weekly_habits = cursor.fetchall()
+    print(weekly_habits)
     df = pd.read_sql_query("SELECT * FROM weeklyHabits", connection)
     df.to_csv('weeklyHabits_new.csv')
     cursor.close()
     connection.commit()
     connection.close()
 
-
 # misseddays()
-showallWeeklyinCSV()
-showallDailyinCSV()
+# showallWeeklyinCSV()
+# showallDailyinCSV()
 # streakdays()

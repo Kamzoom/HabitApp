@@ -55,6 +55,7 @@ class DailyHabit:
             cursor.close()
         connection.close()
 
+
     """when the user don't interrupt the habit, he has a streak after 14 days"""
     @staticmethod
     def streak():
@@ -346,3 +347,4 @@ class WeeklyHabit(DailyHabit):
         for habit in habits:
             print(f"- {habit[0]} ({habit[1]} active days)")
         connection.close()
+
